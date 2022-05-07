@@ -3,36 +3,64 @@ package wasteland.renderer;
 import java.util.Collections;
 
 import wasteland.global.*;
+import wasteland.items.*;
+import wasteland.journal.*;
 import wasteland.world.*;
 import wasteland.entity.*;
+import wasteland.game.Game;
 
 public class Renderer implements Runnable {
     // A Renderer is a class which renders
-    // a world and HUD to the terminal, based on
-    // the player's position.
+    // a main and overlay layer to the terminal.
     private World world;
+    private Journal journal;
     private Player player;
+    private RenderLayers mainLayer;
+    private RenderLayers overlayLayer;
 
     // Temporary variables for the renderer to save memory.
     private int tile;
     private String bg, fg;
     private String character;
     private Entity entity;
+    private Item item;
+    private int lastCleanFrame = 0;
+    private int lastPlayerTick = 0;
+    private int lastEntityTick = 0;
+    private Entity[] tickEntities = new Entity[100];
 
     // Renderer constructs a new Renderer to render a
-    // World and HUD to the terminal.
-    public Renderer(World world, Player player) {
+    // main and overlay layer to the terminal.
+    public Renderer(World world, Journal journal, Player player, RenderLayers mainLayer, RenderLayers overlayLayer) {
         this.world = world;
+        this.journal = journal;
         this.player = player;
+        this.mainLayer = mainLayer;
+        this.overlayLayer = overlayLayer;
     }
 
     // Renders the HUD and the world at the specified coordinates.
-    public void render(int x, int y, int viewDistance) {
+    private void renderWorld(int x, int y, int viewDistance) {
+        // Entities ticker
+        if (lastEntityTick >= Constants.fps) {
+            lastEntityTick = 0;
+        } else {
+            lastEntityTick++;
+        }
+
+        // Player ticker
+        lastPlayerTick++;
+        if (lastPlayerTick >= 100) {
+            // Tick the player
+            player.playerTick(1);
+            lastPlayerTick = 0;
+        }
+
         // Initialize the rendered screen with a new StringBuilder.
         StringBuilder renderedScreen = new StringBuilder(ColouredSysOut.ANSI_RESET);
         // Render the HUD.
         renderedScreen.append(drawBox(0));
-        renderedScreen.append(drawTextBox("PLACEHOLDER"));
+        renderedScreen.append(drawTextBox("Expedition"));
         renderedScreen.append(drawBox(2));
 
         // Render the world.
@@ -83,11 +111,28 @@ public class Renderer implements Runnable {
                     // if so, render it.
                     if (world.getEntity(i, j) != null) {
                         entity = world.getEntity(i, j);
+                        if (lastEntityTick >= Constants.fps) {
+                            // Add the entity to the ticker.
+                            for (int k = 0; k < tickEntities.length; k++) {
+                                if (tickEntities[k] == null) {
+                                    tickEntities[k] = entity;
+                                    break;
+                                }
+                            }
+                        }
                         character = entity.getCharacter();
                         fg = entity.getColor();
                         // Get the background color of the title where the entity is standing.
                         bg = TileChars.getTileColour(world.getTile(i, j))[0];
-                    } else { // If there is no entity, render the tile.
+                        // Check if there is an item at the current coordinates,
+                        // if so, render it.
+                    } else if (world.getItem(i, j) != null) {
+                        item = world.getItem(i, j);
+                        character = item.getCharacter();
+                        fg = item.getColor();
+                        // Get the background color of the title where the item is standing.
+                        bg = TileChars.getTileColour(world.getTile(i, j))[0];
+                    } else { // If there is no entity or item, render the tile.
                         tile = world.getTile(i, j);
                         bg = TileChars.getTileColour(tile)[0];
                         fg = TileChars.getTileColour(tile)[1];
@@ -97,24 +142,150 @@ public class Renderer implements Runnable {
                     // Render the current coordinates.
                     renderedScreen.append(fg + bg + character);
                 } else {
-                    renderedScreen.append(ColouredSysOut.ANSI_BG_BLACK + "..");
+                    renderedScreen.append(ColouredSysOut.ANSI_BG_BLACK + "  ");
                 }
             }
             renderedScreen.append(ColouredSysOut.ANSI_RESET + TileChars.borderSide + "\n");
         }
+        // Tick the entities.
+        for (int k = 0; k < tickEntities.length; k++) {
+            if (tickEntities[k] != null) {
+                tickEntities[k].tick(player);
+                tickEntities[k] = null;
+            }
+        }
+
+        // Render information under the world.
         renderedScreen.append(drawBox(2));
-        renderedScreen.append(drawTextBox("PLACEHOLDER"));
+        renderedScreen.append(drawTextBox(Game.getMessage()));
+        renderedScreen.append(drawBox(2));
+        renderedScreen.append(drawTextBox("Health: " + player.getHealth() + "/" + player.getMaxHealth()));
+        renderedScreen.append(drawTextBox("Hunger: " + player.getHunger() + "/" + player.getMaxHunger()));
+        renderedScreen.append(drawTextBox("Thirst: " + player.getThirst() + "/" + player.getMaxThirst()));
+        renderedScreen.append(drawTextBox("Press f to end the expedition"));
+        renderedScreen.append(drawTextBox("Press h for help"));
         renderedScreen.append(drawBox(1));
+
+        render(renderedScreen);
+    }
+
+    // Renders the journal.
+    private void renderJournal() {
+        // Initialize the rendered screen with a new StringBuilder.
+        StringBuilder renderedScreen = new StringBuilder(ColouredSysOut.ANSI_RESET);
+        // Render the journal.
+        int day = journal.getDay();
+        renderedScreen.append(drawBox(0));
+        renderedScreen.append(drawTextBox("Journal ┃ DAY " + day + " ┃ TAB " + journal.getTab()));
+        renderedScreen.append(drawBox(2));
+        if (journal.getTab() == 1) {
+            renderedScreen.append(drawTextBox(journal.getEntry(day)));
+        } else if (journal.getTab() == 2) {
+            renderedScreen.append(drawTextBox("Player Stats:"));
+            renderedScreen.append(drawTextBox("Health: " + player.getHealth() + "/" + player.getMaxHealth()));
+            renderedScreen.append(drawTextBox("Hunger: " + player.getHunger() + "/" + player.getMaxHunger()));
+            renderedScreen.append(drawTextBox("Thirst: " + player.getThirst() + "/" + player.getMaxThirst()));
+            renderedScreen.append(drawTextBox("Infected: " + player.isInfected()));
+            renderedScreen.append(drawTextBox("Inventory:"));
+            renderedScreen.append(drawTextBox("Food: " + player.getFood() + "/" + player.getMaxFood()));
+            renderedScreen.append(drawTextBox("Water: " + player.getWater() + "/" + player.getMaxWater()));
+            renderedScreen.append(drawTextBox(journal.getEntry(day)));
+            renderedScreen.append(drawBox(2));
+            renderedScreen
+                    .append(drawTextBox("Press 1 to eat some food, 2 to drink some water or 3 to cure an infection"));
+        } else if (journal.getTab() == 3) {
+            renderedScreen.append(drawTextBox(journal.getEntry(day)));
+            renderedScreen.append(drawTextBox("This is your inventory:"));
+            // Loop through the player's inventory and render it.
+            for (int i = 0; i < player.getItems().length; i++) {
+                if (player.getItems()[i] != null) {
+                    renderedScreen.append(drawTextBox(player.getItems()[i].getName()));
+                } else {
+                    renderedScreen.append(drawTextBox("Empty Slot"));
+                }
+            }
+            renderedScreen.append(drawBox(2));
+            renderedScreen.append(drawTextBox("Press f to go on a expedition or g to rest."));
+        } else {
+            renderedScreen.append(drawTextBox(journal.getEntry(day)));
+        }
+        renderedScreen.append(drawBox(2));
+        renderedScreen.append(drawTextBox("Press e to continue"));
+        renderedScreen.append(drawBox(1));
+
+        render(renderedScreen);
+    }
+
+    // Renders the player's inventory.
+    private void renderInventory() {
+        // Initialize the rendered screen with a new StringBuilder.
+        StringBuilder renderedScreen = new StringBuilder(ColouredSysOut.ANSI_RESET);
+
+        // Render the player's inventory.
+        renderedScreen.append(drawBox(0));
+        renderedScreen.append(drawTextBox("Inventory"));
+        renderedScreen.append(drawBox(2));
+        renderedScreen.append(drawTextBox("Player Stats:"));
+        renderedScreen.append(drawTextBox("Health: " + player.getHealth() + "/" + player.getMaxHealth()));
+        renderedScreen.append(drawTextBox("Hunger: " + player.getHunger() + "/" + player.getMaxHunger()));
+        renderedScreen.append(drawTextBox("Thirst: " + player.getThirst() + "/" + player.getMaxThirst()));
+        renderedScreen.append(drawTextBox("Inventory:"));
+        renderedScreen.append(drawTextBox("Food: " + player.getFood() + "/" + player.getMaxFood()));
+        renderedScreen.append(drawTextBox("Water: " + player.getWater() + "/" + player.getMaxWater()));
+
+        // Loop through the player's inventory and render it.
+        for (int i = 0; i < player.getItems().length; i++) {
+            if (player.getItems()[i] != null) {
+                renderedScreen.append(drawTextBox(player.getItems()[i].getName()));
+            } else {
+                renderedScreen.append(drawTextBox("Empty Slot"));
+            }
+        }
+
+        renderedScreen.append(drawTextBox("Press I to close the inventory"));
+        renderedScreen.append(drawBox(1));
+
+        render(renderedScreen);
+    }
+
+    // Renders the help screen.
+    private void renderHelp() {
+        // Initialize the rendered screen with a new StringBuilder.
+        StringBuilder renderedScreen = new StringBuilder(ColouredSysOut.ANSI_RESET);
+
+        // Render the help screen.
+        renderedScreen.append(drawBox(0));
+        renderedScreen.append(drawTextBox("Help"));
+        renderedScreen.append(drawBox(2));
+        renderedScreen.append(drawTextBox("WASD to move"));
+        renderedScreen.append(drawTextBox("I to open/close the inventory"));
+        renderedScreen.append(drawTextBox("H to open/close this help screen"));
+        renderedScreen.append(drawTextBox("Q to quit"));
+        renderedScreen.append(drawTextBox(player.getName()));
+        renderedScreen.append(drawBox(1));
+
+        render(renderedScreen);
+    }
+
+    // Prints the rendered screen to the terminal.
+    private void render(StringBuilder renderedScreen) {
         System.out.print(ColouredSysOut.ANSI_BG_BLACK + ColouredSysOut.ANSI_WHITE);
 
-        int mode = 0;
-        if (mode == 0) {
+        if (Constants.rendererMode == 0) {
             char escCode = 0x1B;
             int row = 0;
             int column = 0;
+            // ASCII escape code for moving the cursor to a specific row and column.
             System.out.print(String.format("%c[%d;%df", escCode, row, column));
-        } else {
+        } else if (Constants.rendererMode == 1) {
             System.out.print("\033[H\033[2J"); // Clear the screen.
+        } else if (Constants.rendererMode == 2) {
+            System.out.print("[0;0f");
+            lastCleanFrame++;
+            if (lastCleanFrame > Constants.fps) {
+                System.out.print("\033[H\033[2J");
+                lastCleanFrame = 0;
+            }
         }
 
         System.out.println(renderedScreen);
@@ -123,8 +294,34 @@ public class Renderer implements Runnable {
     public void run() {
         try {
             while (!Thread.interrupted()) {
-                // Render the world and HUD at the player's coordinates.
-                render(this.player.getX(), this.player.getY(), this.player.getViewDistance());
+                // Render overlay layer if available.
+                int oLayer = this.overlayLayer.getRenderLayer();
+                switch (oLayer) {
+                    case RenderLayers.Help:
+                        // Render the help screen.
+                        renderHelp();
+                        break;
+                    case RenderLayers.Inventory:
+                        // Render the player's inventory screen.
+                        renderInventory();
+                        break;
+                    default:
+                        // There is no overlay layer, render the main layer.
+                        int mLayer = this.mainLayer.getRenderLayer();
+                        switch (mLayer) {
+                            case RenderLayers.World:
+                                // Render the world and HUD at the player's coordinates.
+                                renderWorld(this.player.getX(), this.player.getY(), this.player.getViewDistance());
+                                break;
+                            case RenderLayers.Journal:
+                                // Render the journal.
+                                renderJournal();
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                }
                 // Wait before rendering again.
                 Thread.sleep(1000 / Constants.fps);
             }
