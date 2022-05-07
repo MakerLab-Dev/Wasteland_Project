@@ -22,8 +22,39 @@ public class Main {
             }
         });
 
-        // TODO: Add a menu
+        // Main menu
+        System.out.println("\033[H\033[2J"); // Clear the screen.
+        System.out.println("""
+        ░█░█░█▀█░█▀▀░▀█▀░█▀▀░█░░░█▀█░█▀█░█▀▄░░░█▀█░█▀▄░█▀█░▀▀█░█▀▀░█▀▀░▀█▀
+        ░█▄█░█▀█░▀▀█░░█░░█▀▀░█░░░█▀█░█░█░█░█░░░█▀▀░█▀▄░█░█░░░█░█▀▀░█░░░░█░
+        ░▀░▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀░░░░▀░░░▀░▀░▀▀▀░▀▀░░▀▀▀░▀▀▀░░▀░
+        """);
+        System.out.println("Wasteland Project - A terminal-based game");
+        System.out.println("Copyright (C) 2022  European University of the Atlantic");
+        System.out.println("Check out the project on GitHub: https://github.com/MakerLab-Dev/Wasteland_Project");
+        System.out.println("\n");
+
+        // Main menu
+        System.out.println("Please select an option:");
+        System.out.println("1. Start a new game");
+        System.out.println("2. Exit");
+
+        // Wait for user input
+        int input = -1;
+        while (input < 1 || input > 3) {
+            try {
+                input = Integer.parseInt(System.console().readLine());
+                if (input < 1 || input > 3) throw new Exception();
+            } catch (Exception e) {
+                System.out.println("Please enter a valid option.");
+            }
+        }
+
+        // Start a new game
+        if (input == 1) {
+            System.out.println("\nStarting a new game...");
         Game.startGame();
+        }
     }
 
     // Changes terminal mode to non-canonical mode
