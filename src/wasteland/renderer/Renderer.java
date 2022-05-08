@@ -42,7 +42,7 @@ public class Renderer implements Runnable {
     // Renders the HUD and the world at the specified coordinates.
     private void renderWorld(int x, int y, int viewDistance) {
         // Entities ticker
-        if (lastEntityTick >= Constants.fps) {
+        if (lastEntityTick >= (Constants.fps / 2)) {
             lastEntityTick = 0;
         } else {
             lastEntityTick++;
@@ -111,7 +111,7 @@ public class Renderer implements Runnable {
                     // if so, render it.
                     if (world.getEntity(i, j) != null) {
                         entity = world.getEntity(i, j);
-                        if (lastEntityTick >= Constants.fps) {
+                        if (lastEntityTick >= (Constants.fps / 2)) {
                             // Add the entity to the ticker.
                             for (int k = 0; k < tickEntities.length; k++) {
                                 if (tickEntities[k] == null) {
@@ -162,7 +162,7 @@ public class Renderer implements Runnable {
         renderedScreen.append(drawTextBox("Health: " + player.getHealth() + "/" + player.getMaxHealth()));
         renderedScreen.append(drawTextBox("Hunger: " + player.getHunger() + "/" + player.getMaxHunger()));
         renderedScreen.append(drawTextBox("Thirst: " + player.getThirst() + "/" + player.getMaxThirst()));
-        renderedScreen.append(drawTextBox("Press f to end the expedition"));
+        renderedScreen.append(drawTextBox("Get to the 🌀 to return to the base."));
         renderedScreen.append(drawTextBox("Press h for help"));
         renderedScreen.append(drawBox(1));
 
@@ -187,8 +187,8 @@ public class Renderer implements Runnable {
             renderedScreen.append(drawTextBox("Thirst: " + player.getThirst() + "/" + player.getMaxThirst()));
             renderedScreen.append(drawTextBox("Infected: " + player.isInfected()));
             renderedScreen.append(drawTextBox("Inventory:"));
-            renderedScreen.append(drawTextBox("Food: " + player.getFood() + "/" + player.getMaxFood()));
-            renderedScreen.append(drawTextBox("Water: " + player.getWater() + "/" + player.getMaxWater()));
+            renderedScreen.append(drawTextBox("🥫: " + player.getFood() + "/" + player.getMaxFood()));
+            renderedScreen.append(drawTextBox("🍶: " + player.getWater() + "/" + player.getMaxWater()));
             renderedScreen.append(drawTextBox(journal.getEntry(day)));
             renderedScreen.append(drawBox(2));
             renderedScreen
@@ -201,7 +201,7 @@ public class Renderer implements Runnable {
                 if (player.getItems()[i] != null) {
                     renderedScreen.append(drawTextBox(player.getItems()[i].getName()));
                 } else {
-                    renderedScreen.append(drawTextBox("Empty Slot"));
+                    renderedScreen.append(drawTextBox("❔"));
                 }
             }
             renderedScreen.append(drawBox(2));
@@ -230,15 +230,15 @@ public class Renderer implements Runnable {
         renderedScreen.append(drawTextBox("Hunger: " + player.getHunger() + "/" + player.getMaxHunger()));
         renderedScreen.append(drawTextBox("Thirst: " + player.getThirst() + "/" + player.getMaxThirst()));
         renderedScreen.append(drawTextBox("Inventory:"));
-        renderedScreen.append(drawTextBox("Food: " + player.getFood() + "/" + player.getMaxFood()));
-        renderedScreen.append(drawTextBox("Water: " + player.getWater() + "/" + player.getMaxWater()));
+        renderedScreen.append(drawTextBox("🥫: " + player.getFood() + "/" + player.getMaxFood()));
+        renderedScreen.append(drawTextBox("🍶: " + player.getWater() + "/" + player.getMaxWater()));
 
         // Loop through the player's inventory and render it.
         for (int i = 0; i < player.getItems().length; i++) {
             if (player.getItems()[i] != null) {
                 renderedScreen.append(drawTextBox(player.getItems()[i].getName()));
             } else {
-                renderedScreen.append(drawTextBox("Empty Slot"));
+                renderedScreen.append(drawTextBox("❔"));
             }
         }
 
