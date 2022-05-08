@@ -15,32 +15,38 @@ public final class TileChars {
 
     private static final HashMap<Integer, String[]> tileColours = new HashMap<Integer, String[]>() {
         {
-            put(Tile.Air, new String[] { ColouredSysOut.ANSI_BG_GREEN, ColouredSysOut.ANSI_WHITE });
+            put(Tile.Air, new String[] { ColouredSysOut.ANSI_BG_BLACK, ColouredSysOut.ANSI_WHITE });
             put(Tile.Grass, new String[] { ColouredSysOut.ANSI_BG_GREEN, ColouredSysOut.ANSI_BRIGHT_GREEN });
+            put(Tile.Stone, new String[] { ColouredSysOut.ANSI_BRIGHT_BG_BLACK, ColouredSysOut.ANSI_WHITE });
             put(Tile.Water, new String[] { ColouredSysOut.ANSI_BG_BLUE, ColouredSysOut.ANSI_BRIGHT_BLUE });
-            put(Tile.Sand, new String[] { ColouredSysOut.ANSI_BG_YELLOW, ColouredSysOut.ANSI_BRIGHT_YELLOW });
-            put(Tile.Snow, new String[] { ColouredSysOut.ANSI_BRIGHT_BG_WHITE, ColouredSysOut.ANSI_WHITE });
-            put(Tile.Wall, new String[] { ColouredSysOut.ANSI_BRIGHT_BG_YELLOW, ColouredSysOut.ANSI_BRIGHT_BLACK });
+            put(Tile.Wall1, new String[] { ColouredSysOut.ANSI_BRIGHT_BG_BLACK, ColouredSysOut.ANSI_WHITE });
+            put(Tile.Wall2, new String[] { ColouredSysOut.ANSI_BRIGHT_BG_BLACK, ColouredSysOut.ANSI_BLACK });
+            put(Tile.DoorClosed, new String[] { ColouredSysOut.ANSI_BRIGHT_BG_BLACK, ColouredSysOut.ANSI_WHITE });
+            put(Tile.DoorOpen, new String[] { ColouredSysOut.ANSI_BRIGHT_BG_BLACK, ColouredSysOut.ANSI_WHITE });
         }
     };
     private static final HashMap<Integer, String> tileChars = new HashMap<Integer, String>() {
         {
             put(Tile.Air, "  ");
-            put(Tile.Grass, "::");
+            put(Tile.Grass, ";;");
+            put(Tile.Stone, "..");
             put(Tile.Water, "~~");
-            put(Tile.Sand, "..");
-            put(Tile.Snow, "**");
-            put(Tile.Wall, "  ");
+            put(Tile.Wall1, "##");
+            put(Tile.Wall2, "▓▓");
+            put(Tile.DoorClosed, "🚪");
+            put(Tile.DoorOpen, "[]");
         }
     };
     private static final HashMap<Integer, Boolean> tileColliders = new HashMap<Integer, Boolean>() {
         {
             put(Tile.Air, false);
             put(Tile.Grass, false);
-            put(Tile.Water, false);
-            put(Tile.Sand, false);
-            put(Tile.Snow, false);
-            put(Tile.Wall, true);
+            put(Tile.Stone, false);
+            put(Tile.Water, true);
+            put(Tile.Wall1, true);
+            put(Tile.Wall2, true);
+            put(Tile.DoorClosed, true);
+            put(Tile.DoorOpen, false);
         }
     };
 
