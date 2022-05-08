@@ -201,7 +201,7 @@ public class Renderer implements Runnable {
                 if (player.getItems()[i] != null) {
                     renderedScreen.append(drawTextBox(player.getItems()[i].getName()));
                 } else {
-                    renderedScreen.append(drawTextBox("❔"));
+                    renderedScreen.append(drawTextBox("???"));
                 }
             }
             renderedScreen.append(drawBox(2));
@@ -238,7 +238,7 @@ public class Renderer implements Runnable {
             if (player.getItems()[i] != null) {
                 renderedScreen.append(drawTextBox(player.getItems()[i].getName()));
             } else {
-                renderedScreen.append(drawTextBox("❔"));
+                renderedScreen.append(drawTextBox("???"));
             }
         }
 
@@ -261,7 +261,6 @@ public class Renderer implements Runnable {
         renderedScreen.append(drawTextBox("I to open/close the inventory"));
         renderedScreen.append(drawTextBox("H to open/close this help screen"));
         renderedScreen.append(drawTextBox("Q to quit"));
-        renderedScreen.append(drawTextBox(player.getName()));
         renderedScreen.append(drawBox(1));
 
         render(renderedScreen);
