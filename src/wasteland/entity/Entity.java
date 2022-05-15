@@ -6,7 +6,7 @@ public interface Entity {
     // An Entity is the interface for anything which
     // exists in the world and can move around.
 
-    //info
+    // Info
     String getName();
     void setName(String name);
 
@@ -39,5 +39,8 @@ public interface Entity {
     // Collisions
     boolean isSolid();
     void setSolid(boolean isSolid);
-    
+
+    // Misc
+    void interact(Entity entity);
+    void tick(Player player);
 }

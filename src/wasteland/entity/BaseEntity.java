@@ -1,140 +1,155 @@
 package wasteland.entity;
 
-import wasteland.renderer.*;
 import wasteland.world.*;
 
-abstract class BaseEntity implements Entity {
-
+public abstract class BaseEntity implements Entity {
+    // A BaseEntity is the abstract class for anything which
+    // exists in the world and can move around.
     private String name;
-    private int x, y;
+    private int X, Y;
     private int health;
     private int maxHealth;
     private int attack;
     private boolean isSolid;
-    private World world;
+    protected World world;
 
+    // Constructs a new BaseEntity with the
+    // specified parameters.
     public BaseEntity(String name, int x, int y, int maxHealth, int attack, boolean isSolid, World world) {
-
         this.name = name;
-        this.x = x;
-        this.y = y;
+        this.X = x;
+        this.Y = y;
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.attack = attack;
         this.isSolid = isSolid;
         this.world = world;
 
+        // Add the entity to the world.
         if (world != null) {
             world.addEntity(this);
         }
-
     }
 
+    // Returns the name of the entity.
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getMaxHealth() {
-        return maxHealth;
-    }
-
-    public int getHealth() {
-        return health;
-    }
-
-    public int getAttack() {
-        return attack;
-    }
-
-    public String getColor() {
-        return ColouredSysOut.ANSI_PURPLE;
-    }
-
-    public String getCharacter() {
-        return "??";
-    }
-
+    // Changes the name of the entity.
     public void setName(String name) {
         this.name = name;
     }
 
-    public void move(int x, int y) {
-        this.x = x;
-        this.y = y;
-
-        // if collitions(shit happens) {}
+    // Returns the X coordinate of the entity.
+    public int getX() {
+        return this.X;
     }
 
-    public void up() {
-        this.move(this.x, this.y - 1);
+    // Returns the Y coordinate of the entity.
+    public int getY() {
+        return this.Y;
     }
 
-    public void down() {
-        this.move(this.x, this.y + 1);
+    // Returns the maximum health of the entity.
+    public int getMaxHealth() {
+        return this.maxHealth;
     }
 
-    public void left() {
-        this.move(this.x - 1, this.y);
+    // Returns the health of the entity.
+    public int getHealth() {
+        return this.health;
     }
 
-    public void right() {
-        this.move(this.x + 1, this.y);
+    // Returns the attack damage of the entity.
+    public int getAttack() {
+        return this.attack;
     }
 
-    public void changeWorld(World world) {
-        if (this.world != null) {
-            this.world.removeEntity(this);
-        }
+    // Character returns a string to
+    // render the entity.
+    public abstract String getCharacter();
 
-        this.world = world;
-        world.addEntity(this);
-    }
+    // Color returns the color of the entity.
+    public abstract String getColor();
 
-    public void damage(int damage) {
-        
-        if (damage < 0) {
-            damage = 0;
-        }
-        
-        this.health -= damage;
-
-        if (this.health <= 0) {
-            this.die();
-        }
-
-    }
-
-    public void heal(int heal) {
-        
-        if (health + heal > maxHealth) {
-            health = maxHealth;
-        } else {
-        this.health += heal;
-        }
-
-    }
-
-    public void die() {
-        this.world.removeEntity(this);
-
-    }
-
+    // Returns whether the entity is solid.
     public boolean isSolid() {
-        return isSolid;
+        return this.isSolid;
     }
 
+    // Sets whether the entity is solid.
     public void setSolid(boolean isSolid) {
         this.isSolid = isSolid;
     }
 
+    // changeWorld changes the world of the entity.
+    public void changeWorld(World world) {
+        // Remove the entity from the old world.
+        if (this.world != null) {
+            this.world.removeEntity(this);
+        }
 
+        // Set the new world.
+        this.world = world;
 
+        // Add the entity to the new world.
+        world.addEntity(this);
+    }
+
+    // Move moves the entity to the specified
+    // coordinates.
+    public void move(int x, int y) {
+        this.X = x;
+        this.Y = y;
+    }
+
+    // Up moves an entity one position upwards (negative Y).
+    public void up() {
+        this.move(this.X, this.Y - 1);
+    }
+
+    // Down moves an entity one position downwards (positive Y).
+    public void down() {
+        this.move(this.X, this.Y + 1);
+    }
+
+    // Left moves an entity one position to the left (negative X).
+    public void left() {
+        this.move(this.X - 1, this.Y);
+    }
+
+    // Right moves an entity one position to the right (positive X).
+    public void right() {
+        this.move(this.X + 1, this.Y);
+    }
+
+    // Damage damages the entity by the specified amount.
+    public void damage(int amount) {
+        this.health -= amount;
+
+        if (this.health <= 0) {
+            this.die();
+        }
+    }
+
+    // Heal heals the entity by the specified amount.
+    public void heal(int heal) {
+        if (this.health + heal > this.maxHealth) {
+            this.health = this.maxHealth;
+        } else {
+            this.health += heal;
+        }
+    }
+
+    // Die kills the entity.
+    public void die() {
+        this.world.removeEntity(this);
+    }
+
+    // Interact interacts with the entity.
+    public abstract void interact(Entity entity);
+
+    // Tick updates the entity.
+    public abstract void tick(Player player);
 }
