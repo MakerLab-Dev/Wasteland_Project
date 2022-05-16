@@ -15,7 +15,7 @@ public class World {
     // Currently the max number of items in a world is capped at 100.
     private Item items[] = new Item[100];
 
-    // World constructs a new world.
+    // World constructs a new, empty, world.
     public World(int[][] worldTiles, Entity[] entities, Item[] items) {
         // Set world constants.
         worldHeight = worldTiles.length;
@@ -34,7 +34,10 @@ public class World {
 
         // Copy the items into the world.
         for (int i = 0; i < items.length; i++) {
-            //
+            this.items[i] = items[i];
+            if (items[i] != null) {
+                items[i].changeWorld(this);
+            }
         }
     }
 
@@ -93,18 +96,34 @@ public class World {
 
     // Returns the item at the specified coordinates.
     public Item getItem(int x, int y) {
-        //
+        for (Item item : items) {
+            if (item != null) {
+                if (item.getX() == x && item.getY() == y) {
+                    return item;
+                }
+            }
+        }
+        return null;
     }
 
     // Adds a item to the world.
     public void addItem(Item item) {
-        //
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] == null) {
+                items[i] = item;
+                return;
+            }
+        }
     }
 
     // Removes a item from the world.
     // (Removes the reference to the item, so that 
     // the garbage collector can clean it up.)
     public void removeItem(Item item) {
-        //
+        for (int i = 0; i < items.length; i++) {
+            if (item == items[i]) {
+                items[i] = null;
+            }
+        }
     }
 }
