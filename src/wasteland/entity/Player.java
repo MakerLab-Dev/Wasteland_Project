@@ -129,7 +129,6 @@ public class Player extends BaseEntity {
     // Returns true if the food was added, false otherwise.
     public boolean pickUpFood(Food food) {
         // Add the food to the inventory.
-        Game.setMessage("You picked up " + food.getAmount() + " units of food.");
         return this.inventory.addFood(food.getAmount());
     }
 
@@ -137,7 +136,6 @@ public class Player extends BaseEntity {
     // Returns true if the water was added, false otherwise.
     public boolean pickUpWater(Water water) {
         // Add the water to the inventory.
-        Game.setMessage("You picked up " + water.getAmount() + " units of water.");
         return this.inventory.addWater(water.getAmount());
     }
 
@@ -145,7 +143,6 @@ public class Player extends BaseEntity {
     // Returns true if the item was added, false otherwise.
     public boolean pickUpItem(Item item) {
         // Add the item to the inventory.
-        Game.setMessage("You picked up a " + item.getName() + ".");
         return this.inventory.addItem(item);
     }
 
