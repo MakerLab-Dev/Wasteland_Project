@@ -7,7 +7,7 @@ import java.io.IOException;
 import wasteland.world.*;
 import wasteland.entity.*;
 import wasteland.global.*;
-import wasteland.journal.Journal;
+import wasteland.journal.*;
 import wasteland.levels.*;
 import wasteland.renderer.*;
 import wasteland.items.*;
@@ -105,16 +105,23 @@ public class Game {
 
     // Journal navigation
     private static void journalInput(int keyCode) {
+        if (journal.getTab() == 1) {
+            journal.proccessInput(keyCode);
+        }
         switch (keyCode) {
             case 101: // E
                 journal.nextTab();
                 break;
             case 102: // F
                 if (journal.getTab() == 3) {
+                    // Check if the player has been rescued
+                    if (journal.getDay() == journal.rescueDay()) {
+                        Game.endGame(0);
+                    }
                     // Go on a expedition
                     // Load a random level
-                    // TODO:
-                    loadLevel(new Level01(), 0, 0);
+                    Level level = new LevelSelector().getRandom();
+                    loadLevel(level, 0, 0);
                     mainLayer.setRenderLayer(RenderLayers.World);
                     player.playerTick(10);
                 }
@@ -196,6 +203,11 @@ public class Game {
 
     // End the game
     public static void endGame(int exitCode) {
+        // End the game
+        inputThread.interrupt();
+        overlayLayer.setRenderLayer(RenderLayers.None);
+        mainLayer.setRenderLayer(RenderLayers.None);
+        rendererThread.interrupt();
         System.out.println("\033[H\033[2J"); // Clear the screen.
         switch (exitCode) {
             case 0: // Player was rescued
@@ -213,9 +225,6 @@ public class Game {
                 System.out.println("Ending the game anyway...");
                 break;
         }
-        // End the game
-        inputThread.interrupt();
-        rendererThread.interrupt();
         // Print the game's statistics
         printStats();
         gameRunning = false;
@@ -267,5 +276,10 @@ public class Game {
     // Get Journal
     public static Journal getJournal() {
         return journal;
+    }
+
+    // Get the player
+    public static Player getPlayer() {
+        return player;
     }
 }
