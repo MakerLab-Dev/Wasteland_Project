@@ -85,9 +85,9 @@ public class Level01 extends BaseLevel {
             new Water(21, 1, null, 1),
             new Water(17, 12, null, 1),
             new Water(2, 39, null, 1),
-            new Water(37, 46, null, 3),
+            new Water(38, 46, null, 3),
             new Water(5, 8, null, 2),
-            new Water(41, 2, null, 5),
+            new Water(43, 2, null, 5),
 
             new Food(4, 39, null, 1),
             new Food(31, 13, null, 1),
@@ -99,8 +99,8 @@ public class Level01 extends BaseLevel {
 
             new Key(12, 8, null),
             new Key(31, 2, null),
-            new Key(36, 16, null),
-            new Key(33, 0, null),
+            new Key(37, 16, null),
+            new Key(33, 1, null),
             new Key(46, 6, null),
 
             new MedKit(3, 42, null),
