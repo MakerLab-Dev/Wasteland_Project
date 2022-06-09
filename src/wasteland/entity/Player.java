@@ -67,7 +67,7 @@ public class Player extends BaseEntity {
     // render the player.
     @Override
     public String getCharacter() {
-        return "🤠";
+        return "🧑";
     }
 
     // Color returns the color of the player.
@@ -171,6 +171,11 @@ public class Player extends BaseEntity {
         return this.inventory.getItems();
     }
 
+    // Returns the player's inventory.
+    public Inventory getInventory() {
+        return this.inventory;
+    }
+
     // Consumes the specified amount of food.
     public void consumeFood(int amount) {
         if (this.inventory.getFood() >= amount && this.hunger < this.maxHunger) {
@@ -201,6 +206,21 @@ public class Player extends BaseEntity {
             this.inventory.removeItem(medkit);
             this.isInfected = false;
         }
+    }
+
+    // Cure the player from infection.
+    @Override
+    public int getAttack() {
+        Item axe = this.inventory.getItemByName("🪓 Axe");
+        if (axe != null) {
+            return this.attack + 10;
+        }
+        return this.attack;
+    }
+
+    // Infect the player.
+    public void infect() {
+        this.isInfected = true;
     }
 
     @Override
