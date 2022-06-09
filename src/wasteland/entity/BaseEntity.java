@@ -2,14 +2,14 @@ package wasteland.entity;
 
 import wasteland.world.*;
 
-public abstract class BaseEntity implements Entity {
+public abstract class BaseEntity extends Collisions implements Entity {
     // A BaseEntity is the abstract class for anything which
     // exists in the world and can move around.
     private String name;
     private int X, Y;
     private int health;
     private int maxHealth;
-    private int attack;
+    protected int attack;
     private boolean isSolid;
     protected World world;
 
@@ -100,8 +100,10 @@ public abstract class BaseEntity implements Entity {
     // Move moves the entity to the specified
     // coordinates.
     public void move(int x, int y) {
-        this.X = x;
-        this.Y = y;
+        if (!this.checkCollision(x, y, this.world, this)) {
+            this.X = x;
+            this.Y = y;
+        }
     }
 
     // Up moves an entity one position upwards (negative Y).
