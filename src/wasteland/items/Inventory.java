@@ -14,7 +14,7 @@ public class Inventory {
         this.food = 0;
         this.water = 0;
         this.maxFood = maxFood;
-        this.maxWater = maxFood;
+        this.maxWater = maxWater;
         this.items = new Item[maxItems];
     }
 
